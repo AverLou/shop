@@ -3,15 +3,13 @@ const bcrypt = require('bcryptjs');
 
 async function initDatabase() {
     const connection = await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'Shweeps20080808',
+        host: 'sql8.freesqldatabase.com',
+        user: 'sql8823111',
+        password: '4t8P6aSIIE',
+        database: 'sql8823111',
+        port: 3306,
         multipleStatements: true
     });
-
-    const dbName = 'shop_db';
-    await connection.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
-    await connection.query(`USE ${dbName}`);
 
     await connection.query(`
         CREATE TABLE IF NOT EXISTS users (
@@ -57,9 +55,7 @@ async function initDatabase() {
             order_id INT NOT NULL,
             product_id INT NOT NULL,
             quantity INT NOT NULL,
-            price DECIMAL(10,2) NOT NULL,
-            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-            FOREIGN KEY (product_id) REFERENCES products(id)
+            price DECIMAL(10,2) NOT NULL
         )
     `);
 
@@ -88,16 +84,16 @@ async function initDatabase() {
     const [products] = await connection.query('SELECT COUNT(*) as count FROM products');
     if (products[0].count === 0) {
         const sampleProducts = [
-            ['Смартфон Xiaomi Redmi Note 12', 'Флагманский смартфон с AMOLED дисплеем 6.67"', 24999.00, 50, '/uploads/phone.svg', 'Смартфоны'],
-            ['Ноутбук ASUS VivoBook 15', '15.6" Full HD, Intel Core i5, 8GB RAM, 512GB SSD', 54999.00, 30, '/uploads/laptop.svg', 'Ноутбуки'],
-            ['Наушники Sony WH-1000XM5', 'Беспроводные наушники с шумоподавлением', 32999.00, 45, '/uploads/headphones.svg', 'Аудио'],
-            ['Умные часы Apple Watch SE', 'GPS, пульсометр, водонепроницаемость', 27999.00, 25, '/uploads/watch.svg', 'Часы'],
-            ['Планшет Samsung Galaxy Tab S9', '11" AMOLED, S Pen в комплекте', 64999.00, 20, '/uploads/tablet.svg', 'Планшеты'],
-            ['Игровая консоль PlayStation 5', 'Digital Edition, 825GB SSD', 45999.00, 15, '/uploads/ps5.svg', 'Игровые консоли'],
-            ['Фотоаппарат Canon EOS R50', 'Беззеркальная камера 24.2 МП', 69999.00, 10, '/uploads/camera.svg', 'Фототехника'],
-            ['Колонка JBL Flip 6', 'Портативная, 12 часов работы, водонепроницаемая', 8999.00, 60, '/uploads/speaker.svg', 'Аудио'],
-            ['Фитнес-браслет Huawei Band 8', 'AMOLED экран, 14 дней автономности', 3999.00, 100, '/uploads/band.svg', 'Часы'],
-            ['Робот-пылесос Roborock S8', 'Лазерная навигация, влажная уборка', 34999.00, 35, '/uploads/vacuum.svg', 'Техника для дома']
+            ['Смартфон Xiaomi Redmi Note 12', 'Флагманский смартфон с AMOLED дисплеем 6.67"', 24999.00, 50, '/images/phones/phone.jpg', 'Смартфоны'],
+            ['Ноутбук ASUS VivoBook 15', '15.6" Full HD, Intel Core i5, 8GB RAM, 512GB SSD', 54999.00, 30, '/images/laptops/laptop.jpg', 'Ноутбуки'],
+            ['Наушники Sony WH-1000XM5', 'Беспроводные наушники с шумоподавлением', 32999.00, 45, '/images/audio/headphones.jpg', 'Аудио'],
+            ['Умные часы Apple Watch SE', 'GPS, пульсометр, водонепроницаемость', 27999.00, 25, '/images/wearables/watch.jpg', 'Часы'],
+            ['Планшет Samsung Galaxy Tab S9', '11" AMOLED, S Pen в комплекте', 64999.00, 20, '/images/tablets/tablet.jpg', 'Планшеты'],
+            ['Игровая консоль PlayStation 5', 'Digital Edition, 825GB SSD', 45999.00, 15, '/images/gaming/ps5.jpg', 'Игровые консоли'],
+            ['Фотоаппарат Canon EOS R50', 'Беззеркальная камера 24.2 МП', 69999.00, 10, '/images/cameras/camera.jpg', 'Фототехника'],
+            ['Колонка JBL Flip 6', 'Портативная, 12 часов работы, водонепроницаемая', 8999.00, 60, '/images/audio/speaker.jpg', 'Аудио'],
+            ['Фитнес-браслет Huawei Band 8', 'AMOLED экран, 14 дней автономности', 3999.00, 100, '/images/wearables/band.jpg', 'Часы'],
+            ['Робот-пылесос Roborock S8', 'Лазерная навигация, влажная уборка', 34999.00, 35, '/images/home/vacuum.jpg', 'Техника для дома']
         ];
 
         for (const product of sampleProducts) {
