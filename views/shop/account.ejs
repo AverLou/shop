@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/">Каталог</a>
+                <% if (user) { %>
+                    <a href="/admin">⚙️ Панель управления</a>
+                <% } else { %>
+                    <a href="/account">👤 <%= customer.fullName %></a>
+                <% } %>
+                <a href="/cart" class="cart-link">🛒 Корзина <% if (cartCount > 0) { %><span><%= cartCount %></span><% } %></a>
+                <a href="/logout">Выход</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="account-header">
+                <h1>Личный кабинет</h1>
+                <p>Добро пожаловать, <%= customer.fullName %>!</p>
+            </div>
+            
+            <div class="account-grid">
+                <div class="account-card">
+                    <h2>Мои данные</h2>
+                    <div class="account-info">
+                        <p><strong>Email:</strong> <%= customer.email %></p>
+                        <p><strong>ФИО:</strong> <%= customer.fullName %></p>
+                        <p><strong>Телефон:</strong> <%= customer.phone || 'Не указан' %></p>
+                    </div>
+                </div>
+                
+                <div class="account-card">
+                    <h2>Мои заказы</h2>
+                    <% if (orders.length === 0) { %>
+                        <p style="color: var(--secondary);">У вас пока нет заказов</p>
+                    <% } else { %>
+                        <div class="orders-list">
+                            <% orders.forEach(order => { %>
+                                <div class="order-item">
+                                    <div class="order-header">
+                                        <span class="order-id">Заказ #<%= order.id %></span>
+                                        <span class="order-status status-<%= order.status %>"><%= order.status === 'pending' ? 'Оформлен' : order.status === 'processing' ? 'В работе' : order.status === 'assembled' ? 'Собран' : 'Отправлен' %></span>
+                                    </div>
+                                    <div class="order-details">
+                                        <p><%= order.items || 'Товары в заказе' %></p>
+                                        <p class="order-total"><%= Number(order.total).toLocaleString('ru-RU') %> ₽</p>
+                                        <p class="order-date"><%= new Date(order.created_at).toLocaleDateString('ru-RU') %></p>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                    <a href="/" class="btn" style="margin-top: 15px;">В каталог</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>TechShop</h3>
+                <p>Ваш надёжный магазин электроники</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+
+<style>
+.account-header {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.account-header h1 {
+    margin-bottom: 10px;
+}
+
+.account-header p {
+    color: var(--secondary);
+    font-size: 1.1rem;
+}
+
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.account-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.account-card h2 {
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+.account-info p {
+    margin-bottom: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.orders-list {
+    margin-bottom: 15px;
+}
+
+.order-item {
+    padding: 15px;
+    background: var(--background);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.order-id {
+    font-weight: 600;
+}
+
+.order-status {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-processing { background: #dbeafe; color: #1e40af; }
+.status-assembled { background: #e0e7ff; color: #3730a3; }
+.status-shipped { background: #d1fae5; color: #065f46; }
+
+.order-details p {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.order-total {
+    font-weight: 700;
+    color: var(--primary) !important;
+}
+
+.order-date {
+    color: var(--secondary) !important;
+    font-size: 0.85rem !important;
+}
+</style>

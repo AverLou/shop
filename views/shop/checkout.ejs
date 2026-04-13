@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/">Каталог</a>
+                <% if (user) { %>
+                    <a href="/admin">⚙️ Панель управления</a>
+                <% } else if (customer) { %>
+                    <a href="/account">👤 <%= customer.fullName %></a>
+                <% } %>
+                <a href="/cart" class="cart-link">🛒 Корзина</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <h1 style="margin-bottom: 30px;">Оформление заказа</h1>
+            
+            <form method="POST" action="/checkout" class="checkout-form">
+                <div class="checkout-section">
+                    <h2>Контактные данные</h2>
+                    <% if (customer) { %>
+                        <p style="color: var(--success); margin-bottom: 15px;">✓ Данные заполнены из профиля</p>
+                    <% } %>
+                    <div class="form-group">
+                        <label for="customer_name">ФИО *</label>
+                        <input type="text" id="customer_name" name="customer_name" value="<%= customer?.fullName || '' %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer_phone">Телефон *</label>
+                        <input type="tel" id="customer_phone" name="customer_phone" placeholder="+7 (999) 123-45-67" value="<%= customer?.phone || '' %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer_address">Адрес доставки *</label>
+                        <textarea id="customer_address" name="customer_address" rows="3" placeholder="Город, улица, дом, квартира" required><%= customer?.address || '' %></textarea>
+                    </div>
+                </div>
+                
+                <div class="checkout-section">
+                    <h2>Ваш заказ</h2>
+                    <div id="orderItems" class="order-items">
+                        Загрузка...
+                    </div>
+                </div>
+                
+                <div class="checkout-sidebar">
+                    <div class="checkout-total">
+                        <span>Итого:</span>
+                        <span id="orderTotal">0 ₽</span>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">Подтвердить заказ</button>
+                    <a href="/cart" class="btn btn-secondary btn-block" style="margin-top: 10px;">Назад в корзину</a>
+                </div>
+            </form>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>TechShop</h3>
+                <p>Ваш надёжный магазин электроники</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        async function loadOrderSummary() {
+            try {
+                const response = await fetch('/api/cart');
+                const cart = await response.json();
+                const container = document.getElementById('orderItems');
+                
+                if (!cart.items || cart.items.length === 0) {
+                    window.location.href = '/cart';
+                    return;
+                }
+                
+                container.innerHTML = cart.items.map(item => `
+                    <div class="order-item">
+                        <span>${item.name}</span>
+                        <span>× ${item.quantity}</span>
+                        <span>${(item.price * item.quantity).toLocaleString('ru-RU')} ₽</span>
+                    </div>
+                `).join('');
+                
+                document.getElementById('orderTotal').textContent = cart.total.toLocaleString('ru-RU') + ' ₽';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        loadOrderSummary();
+    </script>
+    
+    <style>
+        .checkout-form {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+        
+        .checkout-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        
+        .checkout-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .order-items {
+            margin-bottom: 20px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .checkout-sidebar {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .checkout-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .checkout-total span:last-child {
+            color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .checkout-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkout-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</body>
+</html>

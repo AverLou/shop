@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/">Каталог</a>
+                <a href="/cart" class="cart-link">🛒 Корзина</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="success-page" style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 6rem; margin-bottom: 20px;">✅</div>
+                <h1 style="color: var(--success); margin-bottom: 15px;">Заказ оформлен!</h1>
+                <p style="font-size: 1.2rem; color: var(--secondary); margin-bottom: 10px;">
+                    Номер вашего заказа: <strong>#<%= orderId %></strong>
+                </p>
+                <p style="color: var(--secondary); margin-bottom: 30px;">
+                    Сумма заказа: <strong><%= Number(total).toLocaleString('ru-RU') %> ₽</strong>
+                </p>
+                <p style="color: var(--secondary); max-width: 500px; margin: 0 auto 30px;">
+                    Спасибо за покупку! Наш менеджер свяжется с вами в ближайшее время для подтверждения заказа.
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/" class="btn">Продолжить покупки</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>TechShop</h3>
+                <p>Ваш надёжный магазин электроники</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

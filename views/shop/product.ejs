@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/">Каталог</a>
+                <a href="/cart" class="cart-link">🛒 Корзина</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="breadcrumb" style="margin-bottom: 20px; color: var(--secondary);">
+                <a href="/" style="color: var(--secondary);">Главная</a> / 
+                <span><%= product.name %></span>
+            </div>
+            
+            <div class="product-detail" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow);">
+                <div class="product-image-wrapper" style="height: 400px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 12px; overflow: hidden;">
+                    <img src="<%= product.image %>" alt="<%= product.name %>" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="font-size: 8rem; display: none;">📱</div>
+                </div>
+                
+                <div class="product-info">
+                    <div class="product-category" style="font-size: 1rem;"><%= product.category %></div>
+                    <h1 style="font-size: 2rem; margin: 15px 0;"><%= product.name %></h1>
+                    <div class="product-price" style="font-size: 2.5rem; color: var(--primary); margin: 20px 0;">
+                        <%= Number(product.price).toLocaleString('ru-RU') %> ₽
+                    </div>
+                    
+                    <% if (product.stock > 0) { %>
+                        <p style="color: var(--success); margin-bottom: 20px;">✓ В наличии: <%= product.stock %> шт.</p>
+                        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                            <input type="number" id="quantity" value="1" min="1" max="<%= product.stock %>" 
+                                   style="width: 80px; padding: 10px; text-align: center; border: 2px solid var(--border); border-radius: 8px;">
+                            <button class="btn btn-success" onclick="addToCart()">Добавить в корзину</button>
+                        </div>
+                    <% } else { %>
+                        <p style="color: var(--error); margin-bottom: 20px;">✗ Нет в наличии</p>
+                    <% } %>
+                    
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">Описание</h3>
+                        <p style="color: var(--secondary); line-height: 1.8;"><%= product.description || 'Описание отсутствует' %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>TechShop</h3>
+                <p>Ваш надёжный магазин электроники</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        async function addToCart() {
+            const quantity = document.getElementById('quantity').value;
+            const productId = <%= product.id %>;
+            
+            try {
+                const response = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, quantity: parseInt(quantity) })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Товар добавлен в корзину!');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+    
+    <style>
+        @media (max-width: 768px) {
+            .product-detail {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</body>
+</html>

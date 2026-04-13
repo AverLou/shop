@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/admin">Главная</a>
+                <% if (user.role === 'owner') { %>
+                    <a href="/admin/users">Пользователи</a>
+                <% } %>
+                <% if (user.role === 'owner' || user.role === 'warehouse_manager') { %>
+                    <a href="/admin/products">Товары</a>
+                <% } %>
+                <% if (user.role === 'owner' || user.role === 'orders_manager') { %>
+                    <a href="/admin/orders">Заказы</a>
+                <% } %>
+                <a href="/admin/profile">Профиль</a>
+                <a href="/admin/logout">Выход</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="welcome-section">
+                <h1>Добро пожаловать, <%= user.fullName %>!</h1>
+                <p class="role-badge">Роль: <%= roleName %></p>
+            </div>
+            
+            <div class="dashboard-cards">
+                <% if (user.role === 'owner') { %>
+                    <div class="dashboard-card">
+                        <div class="dashboard-icon">👥</div>
+                        <h3>Пользователи</h3>
+                        <p>Управление пользователями системы</p>
+                        <a href="/admin/users" class="btn">Перейти</a>
+                    </div>
+                <% } %>
+                
+                <% if (user.role === 'owner' || user.role === 'warehouse_manager') { %>
+                    <div class="dashboard-card">
+                        <div class="dashboard-icon">📦</div>
+                        <h3>Товары</h3>
+                        <p>Добавление и редактирование товаров</p>
+                        <a href="/admin/products" class="btn">Перейти</a>
+                    </div>
+                <% } %>
+                
+                <% if (user.role === 'owner' || user.role === 'orders_manager') { %>
+                    <div class="dashboard-card">
+                        <div class="dashboard-icon">📋</div>
+                        <h3>Заказы</h3>
+                        <p>Обработка и отслеживание заказов</p>
+                        <a href="/admin/orders" class="btn">Перейти</a>
+                    </div>
+                <% } %>
+                
+                <div class="dashboard-card">
+                    <div class="dashboard-icon">⚙️</div>
+                    <h3>Профиль</h3>
+                    <p>Настройки вашего профиля</p>
+                    <a href="/admin/profile" class="btn">Перейти</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

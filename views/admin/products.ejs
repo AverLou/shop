@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/admin">Главная</a>
+                <% if (user.role === 'owner') { %>
+                    <a href="/admin/users">Пользователи</a>
+                <% } %>
+                <% if (user.role === 'owner' || user.role === 'warehouse_manager') { %>
+                    <a href="/admin/products">Товары</a>
+                <% } %>
+                <% if (user.role === 'owner' || user.role === 'orders_manager') { %>
+                    <a href="/admin/orders">Заказы</a>
+                <% } %>
+                <a href="/admin/profile">Профиль</a>
+                <a href="/admin/logout">Выход</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="admin-header">
+                <h1 class="page-title">Управление товарами</h1>
+                <button class="btn" onclick="openModal('createModal')">+ Добавить товар</button>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Изобр.</th>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Цена</th>
+                        <th>На складе</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% products.forEach(p => { %>
+                        <tr>
+                            <td><%= p.id %></td>
+                            <td><img src="<%= p.image %>" alt="" style="width:50px;height:50px;object-fit:cover;border-radius:4px;" onerror="this.src='/uploads/product.png'"></td>
+                            <td><%= p.name %></td>
+                            <td><%= p.category %></td>
+                            <td><%= p.price.toLocaleString('ru-RU') %> ₽</td>
+                            <td><%= p.stock %></td>
+                            <td>
+                                <span class="badge <%= p.is_active ? 'status-shipped' : 'status-pending' %>">
+                                    <%= p.is_active ? 'Активен' : 'Скрыт' %>
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <button class="btn btn-secondary btn-sm" onclick='editProduct(<%= JSON.stringify(p) %>)'>Редактировать</button>
+                                <form method="POST" action="/admin/products/delete" style="display:inline" onsubmit="return confirm('Удалить товар?')">
+                                    <input type="hidden" name="productId" value="<%= p.id %>">
+                                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </main>
+    
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Добавить товар</h2>
+                <button class="modal-close" onclick="closeModal('createModal')">&times;</button>
+            </div>
+            <form method="POST" action="/admin/products/create">
+                <div class="form-group">
+                    <label>Название</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Цена</label>
+                        <input type="number" name="price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>На складе</label>
+                        <input type="number" name="stock" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Категория</label>
+                    <input type="text" name="category">
+                </div>
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Изображение (URL)</label>
+                    <input type="text" name="image_url" placeholder="/uploads/product.png">
+                </div>
+                <button type="submit" class="btn btn-block">Создать</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Редактировать товар</h2>
+                <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <form method="POST" action="/admin/products/update">
+                <input type="hidden" name="id" id="editId">
+                <div class="form-group">
+                    <label>Название</label>
+                    <input type="text" name="name" id="editName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Цена</label>
+                        <input type="number" name="price" id="editPrice" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>На складе</label>
+                        <input type="number" name="stock" id="editStock" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Категория</label>
+                    <input type="text" name="category" id="editCategory">
+                </div>
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea name="description" id="editDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Изображение (URL)</label>
+                    <input type="text" name="image_url" id="editImageUrl">
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="is_active" id="editIsActive">
+                        <label for="editIsActive">Активен (видим покупателям)</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-block">Сохранить</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function editProduct(p) {
+            document.getElementById('editId').value = p.id;
+            document.getElementById('editName').value = p.name;
+            document.getElementById('editPrice').value = p.price;
+            document.getElementById('editStock').value = p.stock;
+            document.getElementById('editCategory').value = p.category || '';
+            document.getElementById('editDescription').value = p.description || '';
+            document.getElementById('editImageUrl').value = p.image || '';
+            document.getElementById('editIsActive').checked = p.is_active == 1;
+            openModal('editModal');
+        }
+    </script>
+</body>
+</html>

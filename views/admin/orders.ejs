@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/admin">Главная</a>
+                <% if (user.role === 'owner') { %>
+                    <a href="/admin/users">Пользователи</a>
+                <% } %>
+                <% if (user.role === 'owner' || user.role === 'warehouse_manager') { %>
+                    <a href="/admin/products">Товары</a>
+                <% } %>
+                <% if (user.role === 'owner' || user.role === 'orders_manager') { %>
+                    <a href="/admin/orders">Заказы</a>
+                <% } %>
+                <a href="/admin/profile">Профиль</a>
+                <a href="/admin/logout">Выход</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="admin-header">
+                <h1 class="page-title">Управление заказами</h1>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Покупатель</th>
+                        <th>Телефон</th>
+                        <th>Адрес</th>
+                        <th>Товары</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Дата</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(o => { %>
+                        <tr>
+                            <td>#<%= o.id %></td>
+                            <td>
+                                <%= o.customer_name %>
+                                <% if (o.customer_email) { %>
+                                    <br><small style="color: var(--secondary);"><%= o.customer_email %></small>
+                                <% } else { %>
+                                    <br><small style="color: var(--secondary);">Гость</small>
+                                <% } %>
+                            </td>
+                            <td><%= o.customer_phone %></td>
+                            <td><%= (o.customer_address || '').substring(0, 30) %>...</td>
+                            <td><%= o.items || '—' %></td>
+                            <td><%= Number(o.total).toLocaleString('ru-RU') %> ₽</td>
+                            <td>
+                                <span class="badge status-<%= o.status %>"><%= statusNames[o.status] %></span>
+                            </td>
+                            <td><%= new Date(o.created_at).toLocaleDateString('ru-RU') %></td>
+                            <td>
+                                <form method="POST" action="/admin/orders/update-status" style="display:inline">
+                                    <input type="hidden" name="orderId" value="<%= o.id %>">
+                                    <select name="status" onchange="this.form.submit()" style="padding:5px;border-radius:4px;border:1px solid #e2e8f0">
+                                        <option value="pending" <%= o.status === 'pending' ? 'selected' : '' %>>Оформлен</option>
+                                        <option value="processing" <%= o.status === 'processing' ? 'selected' : '' %>>В работе</option>
+                                        <option value="assembled" <%= o.status === 'assembled' ? 'selected' : '' %>>Собран</option>
+                                        <option value="shipped" <%= o.status === 'shipped' ? 'selected' : '' %>>Отправлен</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Tech<span>Shop</span></a>
+            <nav class="nav">
+                <a href="/">Каталог</a>
+                <% if (user) { %>
+                    <a href="/admin">⚙️ Панель управления</a>
+                    <a href="/logout">Выход (<%= user.fullName %>)</a>
+                <% } else if (customer) { %>
+                    <a href="/account">👤 <%= customer.fullName %></a>
+                    <a href="/logout">Выход</a>
+                <% } else { %>
+                    <a href="/login">Войти</a>
+                    <a href="/register">Регистрация</a>
+                <% } %>
+                <a href="/cart" class="cart-link">
+                    🛒 Корзина
+                    <% if (cartCount > 0) { %>
+                        <span id="cartCount"><%= cartCount %></span>
+                    <% } %>
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="hero">
+                <h1>Добро пожаловать в TechShop!</h1>
+                <p>Лучшие гаджеты и электроника по доступным ценам</p>
+            </div>
+            
+            <form method="GET" action="/" class="filters">
+                <div class="search-box">
+                    <input type="text" name="search" placeholder="Поиск товаров..." value="<%= search %>">
+                </div>
+                <select name="category">
+                    <option value="">Все категории</option>
+                    <% categories.forEach(c => { %>
+                        <option value="<%= c.category %>" <%= category === c.category ? 'selected' : '' %>><%= c.category %></option>
+                    <% }) %>
+                </select>
+                <select name="sort">
+                    <option value="id" <%= sort === 'id' ? 'selected' : '' %>>По умолчанию</option>
+                    <option value="price" <%= sort === 'price' ? 'selected' : '' %>>По цене</option>
+                    <option value="name" <%= sort === 'name' ? 'selected' : '' %>>По названию</option>
+                </select>
+                <button type="submit" class="btn">Найти</button>
+            </form>
+            
+            <div class="products-grid">
+                <% products.forEach(product => { %>
+                    <div class="product-card">
+                        <a href="/product/<%= product.id %>">
+                            <img src="<%= product.image %>" alt="<%= product.name %>" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="product-image-placeholder" style="display:none;">📱</div>
+                        </a>
+                        <div class="product-info">
+                            <div class="product-category"><%= product.category %></div>
+                            <h3 class="product-name"><%= product.name %></h3>
+                            <div class="product-price"><%= Number(product.price).toLocaleString('ru-RU') %> ₽</div>
+                            <button class="btn btn-block add-to-cart" data-id="<%= product.id %>">В корзину</button>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            
+            <% if (totalPages > 1) { %>
+                <div class="pagination">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>&category=<%= category %>&search=<%= search %>&sort=<%= sort %>">←</a>
+                    <% } %>
+                    
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === currentPage) { %>
+                            <span class="active"><%= i %></span>
+                        <% } else if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+                            <a href="?page=<%= i %>&category=<%= category %>&search=<%= search %>&sort=<%= sort %>"><%= i %></a>
+                        <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
+                            <span>...</span>
+                        <% } %>
+                    <% } %>
+                    
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>&category=<%= category %>&search=<%= search %>&sort=<%= sort %>">→</a>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>TechShop</h3>
+                <p>Ваш надёжный магазин электроники</p>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p>Телефон: 8-800-555-35-35</p>
+                <p>Email: info@techshop.ru</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const productId = btn.dataset.id;
+                try {
+                    const response = await fetch('/cart/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        const cartCount = document.getElementById('cartCount');
+                        if (cartCount) {
+                            cartCount.textContent = data.cartCount;
+                        } else {
+                            const cartLink = document.querySelector('.cart-link');
+                            cartLink.innerHTML = '🛒 Корзина <span id="cartCount">' + data.cartCount + '</span>';
+                        }
+                        btn.textContent = 'Добавлено!';
+                        setTimeout(() => btn.textContent = 'В корзину', 1500);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
